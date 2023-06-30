@@ -1,7 +1,6 @@
 package com.guidetrack.mentorship_tracker.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,12 +19,10 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank(message = "Name is required")
     @NotNull(message = "Name cannot be null")
     private String name;
 
     @NotNull(message = "Description is required")
-    @NotBlank(message = "Description cannot be null")
     private String description;
 
 //    @NotNull(message = "Permissions is required")
