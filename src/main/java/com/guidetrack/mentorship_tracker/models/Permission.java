@@ -25,8 +25,6 @@ public class Permission {
     @NotNull(message = "Description is required")
     private String description;
 
-//    @NotNull(message = "Permissions is required")
-//    @NotBlank(message = "Permissions cannot be null")
     @ManyToMany(mappedBy = "permissions")
     private List<Role> roles;
 
