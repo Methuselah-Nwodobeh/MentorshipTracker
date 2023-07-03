@@ -5,7 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +34,15 @@ public class Role {
             inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     private List<Permission> permissions;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date_created", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime dateCreated;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @UpdateTimestamp
+    private LocalDateTime dateModified;
 
     public Role(@NotNull String name, @NotNull String description) {
         this.name = name;

@@ -1,8 +1,9 @@
 package com.guidetrack.mentorship_tracker.utils.encryption;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 
-//@RequiredArgsConstructor
+@Component
 public class PasswordEncrypt {
 
     private final BCryptPasswordEncoder passwordEncoder;

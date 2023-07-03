@@ -5,7 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +30,15 @@ public class Permission {
 
     @ManyToMany(mappedBy = "permissions")
     private List<Role> roles;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date_created", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime dateCreated;
+
+     @Temporal(TemporalType.TIMESTAMP)
+     @UpdateTimestamp
+    private LocalDateTime dateModified;
 
     public Permission(@NotNull String name, @NotNull String description) {
         this.name = name;

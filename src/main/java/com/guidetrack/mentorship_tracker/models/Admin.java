@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
@@ -14,6 +17,7 @@ import java.util.UUID;
 @Table(name = "admins")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Admin {
 
     @Id
@@ -36,32 +40,18 @@ public class Admin {
     private Role role;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @NotNull(message = "Date Created must be filled")
     @Column(name = "date_created", nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime dateCreated;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @UpdateTimestamp
     private LocalDateTime dateModified;
 
-     public Admin() {
-        this.dateCreated = LocalDateTime.now();
-    }
 
     public Admin(@NotNull String username, @NotNull String email, @NotNull String password) {
          this.username = username;
          this.email = email;
          this.password = password;
-    }
-
-    // PrePersist and PreUpdate callbacks
-
-    @PrePersist
-    protected void onCreate() {
-        this.dateCreated = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.dateModified = LocalDateTime.now();
     }
 }
