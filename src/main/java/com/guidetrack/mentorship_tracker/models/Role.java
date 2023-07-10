@@ -1,23 +1,23 @@
 package com.guidetrack.mentorship_tracker.models;
 
+import com.guidetrack.mentorship_tracker.models.basemodels.BaseModel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "roles")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Role {
+public class Role extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -34,15 +34,6 @@ public class Role {
             inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     private List<Permission> permissions;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_created", nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime dateCreated;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @UpdateTimestamp
-    private LocalDateTime dateModified;
 
     public Role(@NotNull String name, @NotNull String description) {
         this.name = name;

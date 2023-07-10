@@ -73,10 +73,10 @@ public class SeedService {
     public void seedAdmin(){
         PasswordEncrypt passwordEncrypt = new PasswordEncrypt();
         Optional<Role> administrator = roleRepository.findByNameIgnoreCase(ADMIN);
-        Admin admin = new Admin(dotenv.get("ADMIN_USERNAME"), dotenv.get("ADMIN_EMAIL"), passwordEncrypt.encodePassword(dotenv.get("ADMIN_PASSWORD")));
+        Admin admin = new Admin(dotenv.get("ADMIN_USERNAME"), dotenv.get("FIRST_NAME"), dotenv.get("ADMIN_EMAIL"),  passwordEncrypt.encodePassword(dotenv.get("ADMIN_PASSWORD")), administrator.orElse(null));
         boolean isAdminExists = adminRepository.existsByEmail(admin.getEmail());
-        if(!isAdminExists && administrator.isPresent()){
-            admin.setRole(administrator.get());
+        if(!isAdminExists){
+            admin.setVerified(true);
             adminRepository.save(admin);
         }
     }

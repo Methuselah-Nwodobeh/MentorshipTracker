@@ -1,9 +1,9 @@
 package com.guidetrack.mentorship_tracker.utils.encryption;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class PasswordEncrypt {
 
     private final BCryptPasswordEncoder passwordEncoder;
@@ -12,7 +12,13 @@ public class PasswordEncrypt {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public String encodePassword(String password){
+    @Bean
+    public String encodePassword(String password) {
         return passwordEncoder.encode(password);
+    }
+
+    @Bean
+    public boolean verifyPassword(String rawPassword, String hashedPassword) {
+        return passwordEncoder.matches(rawPassword, hashedPassword);
     }
 }
