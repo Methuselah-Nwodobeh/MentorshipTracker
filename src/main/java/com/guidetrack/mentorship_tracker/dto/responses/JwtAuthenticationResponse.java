@@ -1,4 +1,4 @@
-package com.guidetrack.mentorship_tracker.dao.responses;
+package com.guidetrack.mentorship_tracker.dto.responses;
 
 import lombok.*;
 

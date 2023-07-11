@@ -1,10 +1,9 @@
 package com.guidetrack.mentorship_tracker.services;
 
-import com.guidetrack.mentorship_tracker.dao.requests.AdminSignupRequest;
-import com.guidetrack.mentorship_tracker.dao.requests.LoginRequest;
-import com.guidetrack.mentorship_tracker.dao.responses.JwtAuthenticationResponse;
-import com.guidetrack.mentorship_tracker.dao.responses.SignUpResponse;
-import com.guidetrack.mentorship_tracker.exceptions.BadRequestException;
+import com.guidetrack.mentorship_tracker.dto.requests.AdminSignupRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.LoginRequest;
+import com.guidetrack.mentorship_tracker.dto.responses.JwtAuthenticationResponse;
+import com.guidetrack.mentorship_tracker.dto.responses.SignUpResponse;
 import com.guidetrack.mentorship_tracker.models.Admin;
 import com.guidetrack.mentorship_tracker.models.Role;
 import com.guidetrack.mentorship_tracker.models.model_to_details.AdminDetails;
@@ -31,6 +30,9 @@ public class AdminService {
     private final EmailService emailService;
     private final JwtServiceImpl jwtService = new JwtServiceImpl();
 
+    private static final String SUCCESS = "Success";
+    private static final String ERROR = "Error";
+
     public SignUpResponse registerAdmin(AdminSignupRequest adminRequest) {
         log.info("this is adminRequest {}", adminRequest);
         Admin admin = new Admin();
@@ -39,17 +41,17 @@ public class AdminService {
 
         boolean isAdminExists = adminRepository.existsByUsernameIgnoreCaseOrEmail(adminRequest.username(), adminRequest.email());
         if (isAdminExists) {
-            throw new BadRequestException("Admin already exists");
+            return new SignUpResponse(ERROR, "Admin already exists");
         }
         String password = adminRequest.password();
 
         if (password == null || password.isEmpty()) {
-            throw new BadRequestException("Invalid Password");
+            return new SignUpResponse(ERROR, "Password is empty");
         }
         String encodedPassword = passwordEncrypt.encodePassword(password);
         admin.setPassword(encodedPassword);
         if (adminRequest.email().isEmpty()){
-            throw new BadRequestException("Email is null");
+            return new SignUpResponse(ERROR, "Email is empty");
         }
         admin.setEmail(adminRequest.email());
         if (adminRequest.username().isEmpty()) {
@@ -57,7 +59,7 @@ public class AdminService {
         }
         admin.setUsername(adminRequest.username());
         if (adminRequest.firstname().isEmpty()) {
-            throw new BadRequestException("Invalid firstname");
+            return new SignUpResponse(ERROR, "Firstname is empty");
         }
         admin.setFirstname(adminRequest.firstname());
         if (administrator.isPresent()) {
@@ -71,20 +73,20 @@ public class AdminService {
                     "methuselahnwodobeh@gmail.com",
                     adminRequest.email()
             );
-        return new SignUpResponse("success", admin.toString());
+        return new SignUpResponse(SUCCESS, admin.toString());
     }
 
     public JwtAuthenticationResponse signInAdmin(LoginRequest request) {
         Optional<Admin> admin = adminRepository.findByEmail(request.email());
         if (admin.isEmpty()) {
-            throw new BadRequestException("Invalid email");
+            return new JwtAuthenticationResponse(ERROR, "Email is invalid", null);
         }
         String password = request.password();
         if (!passwordEncrypt.verifyPassword(password, admin.get().getPassword())) {
-            throw new BadRequestException("Invalid password");
+            return new JwtAuthenticationResponse(ERROR, "Password is invalid", null);
         }
         if (!admin.get().isVerified()) {
-            throw new BadRequestException("You are not verified");
+            return new JwtAuthenticationResponse(ERROR, "You are not verified", null);
         }
         AdminDetails adminDetails = new AdminDetails(admin.get(), roleRepository);
         String accessToken = jwtService.generateToken(adminDetails);
