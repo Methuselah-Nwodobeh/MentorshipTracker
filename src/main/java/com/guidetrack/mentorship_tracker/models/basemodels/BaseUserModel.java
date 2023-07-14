@@ -4,14 +4,17 @@ import com.guidetrack.mentorship_tracker.models.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-@Setter
-@Getter
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "users")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class BaseUserModel extends BaseModel {

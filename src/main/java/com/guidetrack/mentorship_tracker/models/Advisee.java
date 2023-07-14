@@ -3,17 +3,14 @@ package com.guidetrack.mentorship_tracker.models;
 import com.guidetrack.mentorship_tracker.models.basemodels.BaseUserModel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "advisees")
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Advisee extends BaseUserModel {
