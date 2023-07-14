@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -29,10 +29,6 @@ public class Permission extends BaseModel {
     private String description;
 
     @ManyToMany(mappedBy = "permissions")
-    private List<Role> roles;
+    private Set<Role> roles;
 
-    public Permission(@NotNull String name, @NotNull String description) {
-        this.name = name;
-        this.description = description;
-    }
 }

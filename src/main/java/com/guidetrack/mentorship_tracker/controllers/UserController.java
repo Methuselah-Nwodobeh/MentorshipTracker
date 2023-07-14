@@ -1,8 +1,7 @@
 package com.guidetrack.mentorship_tracker.controllers;
 
-
-import com.guidetrack.mentorship_tracker.dto.requests.AdminSignupRequest;
-import com.guidetrack.mentorship_tracker.dto.responses.DefaultResponse;
+import com.guidetrack.mentorship_tracker.dto.requests.LoginRequest;
+import com.guidetrack.mentorship_tracker.dto.responses.JwtAuthenticationResponse;
 import com.guidetrack.mentorship_tracker.services.BasicUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -16,19 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/user/")
 @Slf4j
-public class AdminController {
-
-    @Qualifier("adminUserServiceImpl")
+public class UserController {
+    @Qualifier("basicUserServiceImpl")
     private final BasicUserService basicUserService;
-
-    @PostMapping("/register")
-    @Operation(summary = "Create an admin")
-    public DefaultResponse register(@Valid @RequestBody AdminSignupRequest request) {
-        log.info("this is admin request {}", request.toString());
-        return basicUserService.register(request);
+    @PostMapping(path = "/login")
+    @Operation(summary = "login")
+    public JwtAuthenticationResponse login(@Valid @RequestBody LoginRequest request) {
+            return basicUserService.login(request);
     }
-
-
 }

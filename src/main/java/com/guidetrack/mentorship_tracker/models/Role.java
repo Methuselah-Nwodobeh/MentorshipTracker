@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -33,10 +33,6 @@ public class Role extends BaseModel {
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
-    private List<Permission> permissions;
+    private Set<Permission> permissions;
 
-    public Role(@NotNull String name, @NotNull String description) {
-        this.name = name;
-        this.description = description;
-    }
 }
