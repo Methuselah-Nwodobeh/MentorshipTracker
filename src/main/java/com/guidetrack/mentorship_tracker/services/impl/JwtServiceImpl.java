@@ -4,18 +4,19 @@ import com.guidetrack.mentorship_tracker.services.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Service
 public class JwtServiceImpl implements JwtService {
-    private final String jwtSigningKey = System.getenv("SECRET_KEY");
+    private final SecretKey jwtSigningKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long jwtExpiration = Long.parseLong(System.getenv("EXPIRATION"));
     private final long refreshExpiration = Long.parseLong(System.getenv("REFRESH_EXPIRATION"));
 
@@ -49,7 +50,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+                .signWith(jwtSigningKey, SignatureAlgorithm.HS256).compact();
     }
 
     private boolean isTokenExpired(String token) {
@@ -61,12 +62,11 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token)
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(jwtSigningKey)
+                .build()
+                .parseClaimsJws(token)
                 .getBody();
-    }
-
-    private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
