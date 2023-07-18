@@ -1,8 +1,8 @@
 package com.guidetrack.mentorship_tracker.services.impl;
 
 import com.guidetrack.mentorship_tracker.dto.requests.AdminSignupRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.LoginRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.SignupRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.user.LoginRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.user.SignupRequest;
 import com.guidetrack.mentorship_tracker.dto.responses.DefaultResponse;
 import com.guidetrack.mentorship_tracker.dto.responses.JwtAuthenticationResponse;
 import com.guidetrack.mentorship_tracker.models.Role;
@@ -16,6 +16,7 @@ import com.guidetrack.mentorship_tracker.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,20 +40,20 @@ public class BasicUserServiceImpl implements BasicUserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public DefaultResponse register(AdminSignupRequest request) {
+    public ResponseEntity<DefaultResponse> register(AdminSignupRequest request) {
         return null;
     }
 
     @Override
-    public DefaultResponse register(SignupRequest request) {
+    public ResponseEntity<DefaultResponse> register(SignupRequest request) {
         log.info("this is request {}", request);
         BaseUserModel user = new BaseUserModel();
         Optional<Role> roleFromDB = roleRepository.findByNameIgnoreCase(request.role());
         log.info("this is user role {}", roleFromDB.orElse(null));
 
-        boolean isAdminExists = baseUserRepository.existsByUsernameIgnoreCaseOrEmail(request.username(), request.email());
-        if (isAdminExists) {
-            return new DefaultResponse(ERROR, "Admin already exists");
+        boolean isUserExists = baseUserRepository.existsByUsernameIgnoreCaseOrEmail(request.username(), request.email());
+        if (isUserExists) {
+            return ResponseEntity.badRequest().body(new DefaultResponse(ERROR, "User already exists"));
         }
         String password = request.password();
 
@@ -72,11 +73,11 @@ public class BasicUserServiceImpl implements BasicUserService {
                 "methuselahnwodobeh@gmail.com",
                 request.email()
         );
-        return new DefaultResponse(SUCCESS, user.toString());
+        return ResponseEntity.status(201).body(new DefaultResponse(SUCCESS, user.toString()));
     }
 
     @Override
-    public JwtAuthenticationResponse login(@Valid LoginRequest request) {
+    public ResponseEntity<JwtAuthenticationResponse> login(@Valid LoginRequest request) {
         log.info("this is request {}", request.email());
 
         UsernamePasswordAuthenticationToken authreq = new UsernamePasswordAuthenticationToken(request.email(), request.password());
@@ -87,37 +88,37 @@ public class BasicUserServiceImpl implements BasicUserService {
                  () -> new IllegalArgumentException("Invalid email or password"));
          log.info("this is user {}", userFromDB.getUsername());
         if (!userFromDB.isVerified()) {
-            return new JwtAuthenticationResponse(ERROR, "You are not verified", null);
+            return ResponseEntity.status(403).body( new JwtAuthenticationResponse(ERROR, "You are not verified", null));
         }
         BaseUserDetails userDetails = new BaseUserDetails(userFromDB);
         log.info("this is userdetails {}", userDetails.getAuthorities());
         String accessToken = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
-        return JwtAuthenticationResponse
+        return ResponseEntity.status(201).body(JwtAuthenticationResponse
                 .builder().
                 refreshToken(refreshToken)
                 .accessToken(accessToken)
                 .status(SUCCESS)
-                .build();
+                .build());
     }
 
     @Override
-    public DefaultResponse update() {
+    public ResponseEntity<DefaultResponse> update() {
         return null;
     }
 
     @Override
-    public DefaultResponse delete() {
+    public ResponseEntity<DefaultResponse> delete() {
         return null;
     }
 
     @Override
-    public DefaultResponse read() {
+    public ResponseEntity<DefaultResponse> read() {
         return null;
     }
 
     @Override
-    public DefaultResponse readAll() {
+    public ResponseEntity<DefaultResponse> readAll() {
         return null;
     }
 }

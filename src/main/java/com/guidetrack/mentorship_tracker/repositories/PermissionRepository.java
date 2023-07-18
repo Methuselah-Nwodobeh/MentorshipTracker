@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface PermissionRepository extends JpaRepository<Permission, UUID> {
     Optional<Permission> findByNameIgnoreCase(String name);
+    @NotNull Optional<Permission> findById(@NotNull UUID uuid);
 
     Boolean existsByNameIgnoreCase(String name);
 

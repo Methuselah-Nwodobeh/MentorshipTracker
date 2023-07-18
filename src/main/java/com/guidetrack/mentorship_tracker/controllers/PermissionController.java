@@ -1,66 +1,55 @@
 package com.guidetrack.mentorship_tracker.controllers;
 
-import com.guidetrack.mentorship_tracker.dto.requests.GenericUpdateRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.RoleAndPermissionRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.permission.PermissionRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.permission.UpdatePermissionRequest;
 import com.guidetrack.mentorship_tracker.dto.responses.DefaultResponse;
-import com.guidetrack.mentorship_tracker.services.RoleAndPermissionService;
+import com.guidetrack.mentorship_tracker.services.PermissionService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/permission/")
 @Slf4j
 public class PermissionController {
-    @Qualifier("permissionServiceImpl")
-    private final RoleAndPermissionService permissionService;
+    private final PermissionService permissionService;
 
-    @PostMapping(path = "/create")
+    @PostMapping()
     @Operation(summary = "create a role")
-    public DefaultResponse create(@Valid @RequestBody RoleAndPermissionRequest request){
+    public ResponseEntity<DefaultResponse> create(@Valid @RequestBody PermissionRequest request){
         return permissionService.create(request);
     }
 
-    @PostMapping(path = "/update_name")
-    @Operation(summary = "update the name of a permission")
-    public DefaultResponse updateName(@Valid @RequestBody GenericUpdateRequest<String, String> request){
-        return permissionService.updateName(request);
+    @PutMapping()
+    @Operation(summary = "update the fields of a permission")
+    public ResponseEntity<DefaultResponse> update(@Valid @RequestBody UpdatePermissionRequest request){
+        return permissionService.update(request);
     }
 
-    @PostMapping(path = "/update_description")
-    @Operation(summary = "update the description of a permission")
-    public DefaultResponse updateDescription(@Valid @RequestBody GenericUpdateRequest<String, String> request){
-        return permissionService.updateDescription(request);
-    }
-
-    @PostMapping(path = "/delete")
+    @DeleteMapping("/{id}")
     @Operation(summary = "delete a permission")
-    public DefaultResponse delete(@NotBlank @RequestBody String request){
-        return permissionService.delete(request);
+    public ResponseEntity<DefaultResponse> delete(@NotBlank @PathVariable UUID id){
+        return permissionService.delete(id);
     }
 
-    @GetMapping(path = "/read")
+    @GetMapping("/{id}")
     @Operation(summary = "read a permission")
-    public DefaultResponse read(@NotBlank @RequestBody String request){
-        return permissionService.read(request);
+    public ResponseEntity<DefaultResponse> read(@NotBlank @PathVariable UUID id){
+        return permissionService.read(id);
     }
 
-    @PostMapping(path = "/read_all")
+    @GetMapping()
     @Operation(summary = "read all permissions in the database")
-    public DefaultResponse readAll(){
+    public ResponseEntity<DefaultResponse> readAll(){
         return permissionService.readAll();
     }
 
-    @PostMapping(path = "/join")
-    @Operation(summary = "set role for a permission")
-    public DefaultResponse join(@Valid @RequestBody GenericUpdateRequest<String, Set<String>> request){
-        return permissionService.join(request);
-    }
 }

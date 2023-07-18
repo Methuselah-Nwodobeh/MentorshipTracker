@@ -1,112 +1,110 @@
 package com.guidetrack.mentorship_tracker.services.impl;
 
-import com.guidetrack.mentorship_tracker.dto.requests.GenericUpdateRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.RoleAndPermissionRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.permission.PermissionRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.permission.UpdatePermissionRequest;
 import com.guidetrack.mentorship_tracker.dto.responses.DefaultResponse;
-import com.guidetrack.mentorship_tracker.exceptions.BadRequestException;
 import com.guidetrack.mentorship_tracker.models.Permission;
 import com.guidetrack.mentorship_tracker.models.Role;
 import com.guidetrack.mentorship_tracker.repositories.PermissionRepository;
 import com.guidetrack.mentorship_tracker.repositories.RoleRepository;
-import com.guidetrack.mentorship_tracker.services.RoleAndPermissionService;
+import com.guidetrack.mentorship_tracker.services.PermissionService;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
 import static com.guidetrack.mentorship_tracker.utils.constants.ErrorConstants.PERMISSIONDOESNOTEXIST;
+import static com.guidetrack.mentorship_tracker.utils.constants.ErrorConstants.ROLEDOESNOTEXIST;
 import static com.guidetrack.mentorship_tracker.utils.constants.ResponseConstants.ERROR;
 import static com.guidetrack.mentorship_tracker.utils.constants.ResponseConstants.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PermissionServiceImpl implements RoleAndPermissionService {
+public class PermissionServiceImpl implements PermissionService {
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
 
     @Override
-    public DefaultResponse create(@Valid RoleAndPermissionRequest request) {
+    public ResponseEntity<DefaultResponse> create(@Valid @NotNull PermissionRequest request) {
         Permission permission = new Permission();
         boolean isPermissionExists = permissionRepository.existsByNameIgnoreCase(request.name());
         if (isPermissionExists) {
-            return new DefaultResponse(ERROR, "Permission already exists");
+            return ResponseEntity.badRequest().body(new DefaultResponse(ERROR, "Permission already exists"));
         }
         permission.setName(request.name());
         permission.setDescription(request.description());
         permissionRepository.save(permission);
-        return new DefaultResponse(SUCCESS, permission.toString());
+        return ResponseEntity.status(201).body(new DefaultResponse(SUCCESS, permission.toString()));
+
     }
 
     @Override
-    public DefaultResponse updateName(@Valid GenericUpdateRequest<String, String> request) {
-        Optional<Permission> permissionFromDB = getPermissionFromDB(request.identifier());
-        if (permissionFromDB.isEmpty()) {
-            return new DefaultResponse(ERROR, PERMISSIONDOESNOTEXIST);
+    public ResponseEntity<DefaultResponse> update(@Valid @NotNull UpdatePermissionRequest request) {
+        Optional<Permission> optionalPermission = getPermissionFromDB(request.uuid());
+        if (optionalPermission.isEmpty()) {
+            return ResponseEntity.badRequest().body(new DefaultResponse(ERROR, PERMISSIONDOESNOTEXIST));
         }
-        Permission permission = permissionFromDB.get();
-        permission.setName(request.replacement());
-        return new DefaultResponse(SUCCESS, permission.toString());
-    }
-
-    @Override
-    public DefaultResponse updateDescription(@Valid GenericUpdateRequest<String, String> request) {
-        Optional<Permission> permissionFromDB = getPermissionFromDB(request.identifier());
-        if (permissionFromDB.isEmpty()) {
-            return new DefaultResponse(ERROR, PERMISSIONDOESNOTEXIST);
+        Permission permission = optionalPermission.get();
+        if (request.name().isEmpty() && request.description().isEmpty() && request.roles().isEmpty()) {
+            return ResponseEntity.status(400).body(new DefaultResponse(ERROR, "At least one field must be set excluding UUID"));
         }
-        Permission permission = permissionFromDB.get();
-        permission.setDescription(request.replacement());
-        return new DefaultResponse(SUCCESS, permission.toString());
-    }
-
-    private Optional<Permission> getPermissionFromDB(@Valid String name) {
-        return permissionRepository.findByNameIgnoreCase(name);
-    }
-
-    @Override
-    public DefaultResponse delete(@NotBlank @RequestBody String name) {
-        Optional<Permission> permissionFromDB = getPermissionFromDB(name);
-        if (permissionFromDB.isEmpty()) {
-            return new DefaultResponse(ERROR, PERMISSIONDOESNOTEXIST);
+        if (!request.name().isEmpty()) {
+            permission.setName(request.name());
         }
-        permissionRepository.delete(permissionFromDB.get());
-        return new DefaultResponse(SUCCESS, "Permission deleted");
-    }
-
-    @Override
-    public DefaultResponse read(@NotBlank @RequestBody String name) {
-        Optional<Permission> permissionFromDB = getPermissionFromDB(name);
-        return permissionFromDB.map(permission -> new DefaultResponse(SUCCESS,
-                convertPermissionToHashMap(permission).toString())).orElseGet(() -> new DefaultResponse(ERROR,
-                PERMISSIONDOESNOTEXIST));
-    }
-
-    @Override
-    public DefaultResponse readAll() {
-        List<Map<String, Object>> allPermissions = getAllPermissionsAsHashMap();
-        return new DefaultResponse(SUCCESS, allPermissions.toString());
-    }
-
-    @Override
-    public DefaultResponse join(@NotNull GenericUpdateRequest<String, Set<String>> request) {
-        Optional<Permission> optionalPermission = getPermissionFromDB(request.identifier());
-        Permission permission = optionalPermission.orElseThrow(() -> new BadRequestException(PERMISSIONDOESNOTEXIST));
-        Set<Role> roles = new HashSet<>();
-        for (String roleName:request.replacement()) {
-            Optional<Role> roleOptional = roleRepository.findByNameIgnoreCase(roleName);
-            Role role = roleOptional.orElseThrow(() -> new BadRequestException("Role Does not exist"));
-            roles.add(role);
+        if (!request.description().isEmpty()) {
+            permission.setDescription(request.description());
         }
-        permission.setRoles(roles);
+        Set<Role> roleSet = permission.getRoles();
+        if (!request.roles().isEmpty()) {
+            for (String role : request.roles()) {
+                Optional<Role> optionalRole = roleRepository.findByNameIgnoreCase(role);
+                if (optionalRole.isEmpty()) {
+                    return ResponseEntity.status(404).body(new DefaultResponse(ERROR, ROLEDOESNOTEXIST));
+                }
+                Role role1 = optionalRole.get();
+                roleSet.add(role1);
+            }
+        }
         permissionRepository.save(permission);
+        return ResponseEntity.status(201).body(new DefaultResponse(SUCCESS, permission.toString()));
+    }
 
-        return new DefaultResponse(SUCCESS, "Role set successfully");
+    @Override
+    public ResponseEntity<DefaultResponse> delete(@NotBlank @RequestBody UUID uuid) {
+        Optional<Permission> optionalPermission = getPermissionFromDB(uuid);
+        if (optionalPermission.isEmpty()) {
+            return ResponseEntity.badRequest().body(new DefaultResponse(ERROR, PERMISSIONDOESNOTEXIST));
+        }
+        permissionRepository.delete(optionalPermission.get());
+        return ResponseEntity.status(200).body(new DefaultResponse(SUCCESS, "Permission deleted"));
+    }
+
+    @Override
+    public ResponseEntity<DefaultResponse> read(@NotBlank @RequestBody UUID uuid) {
+        Optional<Permission> optionalPermission = getPermissionFromDB(uuid);
+        return optionalPermission.map(permission -> ResponseEntity
+                .status(200)
+                .body(new DefaultResponse(SUCCESS, convertPermissionToHashMap(permission))))
+                .orElseGet(() -> ResponseEntity
+                        .badRequest()
+                        .body(new DefaultResponse(ERROR, PERMISSIONDOESNOTEXIST)));
+    }
+
+    @Override
+    public ResponseEntity<DefaultResponse> readAll() {
+        return ResponseEntity.status(200).body(new DefaultResponse(SUCCESS, getAllPermissionsAsHashMap()));
+    }
+
+    private @NotNull Optional<Permission> getPermissionFromDB(UUID uuid) {
+        return permissionRepository.findById(uuid);
     }
 
     public List<Map<String, Object>> getAllPermissionsAsHashMap() {
@@ -117,7 +115,7 @@ public class PermissionServiceImpl implements RoleAndPermissionService {
                 .toList();
     }
 
-    private Map<String, Object> convertPermissionToHashMap(Permission permission) {
+    private @NotNull Map<String, Object> convertPermissionToHashMap(@NotNull Permission permission) {
         Map<String, Object> map = new HashMap<>();
 
         // Add your desired fields to the HashMap

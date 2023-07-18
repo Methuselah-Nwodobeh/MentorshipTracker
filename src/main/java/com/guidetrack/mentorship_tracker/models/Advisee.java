@@ -3,7 +3,10 @@ package com.guidetrack.mentorship_tracker.models;
 import com.guidetrack.mentorship_tracker.models.basemodels.BaseUserModel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 

@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class DefaultResponse {
     private ResponseConstants status;
-    private String data;
+    private Object data;
 
     @Override
     public String toString(){

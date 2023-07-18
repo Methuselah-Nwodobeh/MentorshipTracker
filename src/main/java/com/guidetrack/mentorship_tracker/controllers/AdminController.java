@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +24,9 @@ public class AdminController {
     @Qualifier("adminUserServiceImpl")
     private final BasicUserService basicUserService;
 
-    @PostMapping("/register")
+    @PostMapping()
     @Operation(summary = "Create an admin")
-    public DefaultResponse register(@Valid @RequestBody AdminSignupRequest request) {
+    public ResponseEntity<DefaultResponse> register(@Valid @RequestBody AdminSignupRequest request) {
         log.info("this is admin request {}", request.toString());
         return basicUserService.register(request);
     }

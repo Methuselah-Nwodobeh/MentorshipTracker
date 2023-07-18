@@ -1,4 +1,4 @@
-package com.guidetrack.mentorship_tracker.dto.requests;
+package com.guidetrack.mentorship_tracker.dto.requests.user;
 
 import jakarta.validation.constraints.NotBlank;
 

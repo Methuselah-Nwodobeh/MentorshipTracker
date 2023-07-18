@@ -1,7 +1,8 @@
 package com.guidetrack.mentorship_tracker.seeders;
 
 import com.guidetrack.mentorship_tracker.dto.requests.AdminSignupRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.RoleAndPermissionRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.permission.PermissionRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.role.RoleRequest;
 import com.guidetrack.mentorship_tracker.models.Admin;
 import com.guidetrack.mentorship_tracker.models.Permission;
 import com.guidetrack.mentorship_tracker.models.Role;
@@ -9,7 +10,8 @@ import com.guidetrack.mentorship_tracker.repositories.AdminRepository;
 import com.guidetrack.mentorship_tracker.repositories.PermissionRepository;
 import com.guidetrack.mentorship_tracker.repositories.RoleRepository;
 import com.guidetrack.mentorship_tracker.services.BasicUserService;
-import com.guidetrack.mentorship_tracker.services.RoleAndPermissionService;
+import com.guidetrack.mentorship_tracker.services.PermissionService;
+import com.guidetrack.mentorship_tracker.services.RoleService;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,10 +29,8 @@ public class SeedService {
     private final AdminRepository adminRepository;
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
-    @Qualifier("permissionServiceImpl")
-    private final RoleAndPermissionService permissionService;
-    @Qualifier("roleServiceImpl")
-    private  final RoleAndPermissionService roleService;
+    private final PermissionService permissionService;
+    private  final RoleService roleService;
     @Qualifier("adminUserServiceImpl")
     private final BasicUserService adminService;
 
@@ -41,15 +41,15 @@ public class SeedService {
     }
 
     public void seedPermissions(){
-        RoleAndPermissionRequest manageMentorship = new RoleAndPermissionRequest(MANAGE, "create, view, update and delete on mentorship(advisors and advisees");
-        RoleAndPermissionRequest viewMentorship = new RoleAndPermissionRequest(VIEW, VIEW);
+        PermissionRequest manageMentorship = new PermissionRequest(MANAGE, "create, view, update and delete on mentorship(advisors and advisees");
+        PermissionRequest viewMentorship = new PermissionRequest(VIEW, VIEW);
 
        permissionService.create(manageMentorship);
        permissionService.create(viewMentorship);
     }
 
     public void seedRoles(){
-        RoleAndPermissionRequest mentorshipManager = new RoleAndPermissionRequest(MANAGER, "Perform mentorship associated CRUD actions");
+        RoleRequest mentorshipManager = new RoleRequest(MANAGER, "Perform mentorship associated CRUD actions");
 
         Optional<Permission> manageMentorship = permissionRepository.findByNameIgnoreCase("Manage mentorship");
         Optional<Permission> viewMentorship = permissionRepository.findByNameIgnoreCase("View mentorship");
@@ -63,7 +63,7 @@ public class SeedService {
         }
 
 
-        RoleAndPermissionRequest administrator = new RoleAndPermissionRequest(ADMIN, "Perform all actions");
+        RoleRequest administrator = new RoleRequest(ADMIN, "Perform all actions");
         boolean isAdministratorExists = roleRepository.existsByNameIgnoreCase("Administrator");
 
         if (!isAdministratorExists){

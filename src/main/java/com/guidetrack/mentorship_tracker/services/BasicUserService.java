@@ -1,24 +1,25 @@
 package com.guidetrack.mentorship_tracker.services;
 
 import com.guidetrack.mentorship_tracker.dto.requests.AdminSignupRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.LoginRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.SignupRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.user.LoginRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.user.SignupRequest;
 import com.guidetrack.mentorship_tracker.dto.responses.DefaultResponse;
 import com.guidetrack.mentorship_tracker.dto.responses.JwtAuthenticationResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface BasicUserService {
-    DefaultResponse register(AdminSignupRequest request);
-    DefaultResponse register(SignupRequest request);
+    ResponseEntity<DefaultResponse> register(AdminSignupRequest request);
+    ResponseEntity<DefaultResponse> register(SignupRequest request);
 
-    JwtAuthenticationResponse login(LoginRequest request);
+    ResponseEntity<JwtAuthenticationResponse> login(LoginRequest request);
 
-    DefaultResponse update();
+    ResponseEntity<DefaultResponse> update();
 
-    DefaultResponse delete();
+    ResponseEntity<DefaultResponse> delete();
 
-    DefaultResponse read();
+    ResponseEntity<DefaultResponse> read();
 
-    DefaultResponse readAll();
+    ResponseEntity<DefaultResponse> readAll();
 }

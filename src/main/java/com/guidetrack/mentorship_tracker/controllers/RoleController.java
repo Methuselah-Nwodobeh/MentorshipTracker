@@ -1,67 +1,55 @@
 package com.guidetrack.mentorship_tracker.controllers;
 
-import com.guidetrack.mentorship_tracker.dto.requests.GenericUpdateRequest;
-import com.guidetrack.mentorship_tracker.dto.requests.RoleAndPermissionRequest;
-import com.guidetrack.mentorship_tracker.dto.responses.DefaultResponse;
-import com.guidetrack.mentorship_tracker.services.RoleAndPermissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.UUID;
+
+import com.guidetrack.mentorship_tracker.dto.requests.role.RoleRequest;
+import com.guidetrack.mentorship_tracker.dto.requests.role.UpdateRoleRequest;
+import com.guidetrack.mentorship_tracker.dto.responses.DefaultResponse;
+import com.guidetrack.mentorship_tracker.services.RoleService;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/role/")
 @Slf4j
 public class RoleController {
-    @Qualifier("roleServiceImpl")
-    private final RoleAndPermissionService roleService;
+    private final RoleService roleService;
 
-    @PostMapping(path = "/create")
+    @PostMapping()
     @Operation(summary = "create a role")
-    public DefaultResponse create(@Valid @RequestBody RoleAndPermissionRequest request){
+    public ResponseEntity<DefaultResponse> create(@Valid @RequestBody RoleRequest request) {
         return roleService.create(request);
     }
 
-    @PostMapping(path = "/update_name")
-    @Operation(summary = "update the name of a role")
-    public DefaultResponse updateName(@Valid @RequestBody GenericUpdateRequest<String, String> request){
-        return roleService.updateName(request);
+    @PutMapping()
+    @Operation(summary = "update the fields of a role")
+    public ResponseEntity<DefaultResponse> update(@Valid @RequestBody UpdateRoleRequest request) {
+        return roleService.update(request);
     }
 
-    @PostMapping(path = "/update_description")
-    @Operation(summary = "update the description of a role")
-    public DefaultResponse updateDescription(@Valid @RequestBody GenericUpdateRequest<String, String> request){
-        return roleService.updateDescription(request);
-    }
-
-    @PostMapping(path = "/delete")
+    @DeleteMapping("/{id}")
     @Operation(summary = "delete a role")
-    public DefaultResponse delete(@NotBlank @RequestBody String request){
-        return roleService.delete(request);
+    public ResponseEntity<DefaultResponse> delete(@NotBlank @PathVariable UUID id) {
+        return roleService.delete(id);
     }
 
-    @GetMapping(path = "/read")
+    @GetMapping("/{id}")
     @Operation(summary = "read a role")
-    public DefaultResponse read(@NotBlank @RequestBody String request){
-        return roleService.read(request);
+    public ResponseEntity<DefaultResponse> read(@NotBlank @PathVariable UUID id) {
+        return roleService.read(id);
     }
 
-    @PostMapping(path = "/read_all")
+    @GetMapping()
     @Operation(summary = "read all roles in the database")
-    public DefaultResponse readAll(){
+    public ResponseEntity<DefaultResponse> readAll() {
         return roleService.readAll();
     }
 
-    @PostMapping(path = "/join")
-    @Operation(summary = "set permission for a role")
-    public DefaultResponse join(@Valid @RequestBody GenericUpdateRequest<String, Set<String>> request){
-        log.info("this is request {}", request.identifier());
-        return roleService.join(request);
-    }
 }
