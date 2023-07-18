@@ -7,10 +7,10 @@ spring:
     username: ${POSTGRES_USERNAME}
     password: ${POSTGRES_PASSWORD}
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: methuselahnwodobeh@gmail.com
-    password: iakwagcpblcikltz
+    host: ${EMAIL_HOST}
+    port: ${EMAIL_PORT}
+    username: ${EMAIL_HOST_USER}
+    password: ${EMAIL_HOST_PASSWORD}
     properties:
       mail:
         smtp:
