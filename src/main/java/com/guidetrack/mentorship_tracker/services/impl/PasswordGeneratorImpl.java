@@ -1,9 +1,11 @@
 package com.guidetrack.mentorship_tracker.services.impl;
 
 import com.guidetrack.mentorship_tracker.services.PasswordGenerator;
+import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 
+@Service
 public class PasswordGeneratorImpl implements PasswordGenerator {
     private static final String UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String LOWERCASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
