@@ -1,17 +1,15 @@
 package com.guidetrack.mentorship_tracker.repositories;
 
-import com.guidetrack.mentorship_tracker.models.Admin;
+import com.guidetrack.mentorship_tracker.models.basemodels.BaseUserModel;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface AdminRepository extends JpaRepository<Admin, UUID> {
-    Optional<Admin> findByEmail(String email);
+public interface BaseUserRepository extends JpaRepository<BaseUserModel, UUID> {
+    Optional<BaseUserModel> findByEmail(String email);
 
     Boolean existsByEmail(String email);
 

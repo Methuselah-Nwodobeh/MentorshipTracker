@@ -1,4 +1,4 @@
-package com.guidetrack.mentorship_tracker.utils.encryption.constants;
+package com.guidetrack.mentorship_tracker.utils.constants;
 
 
 public class SeederConstants {
